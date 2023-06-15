@@ -1,0 +1,57 @@
+Union-find with specific canonical element
+
+Add a method find() to the union-find data type so that find(i) returns the largest element in the connected component containing i.
+The operations, union(), connected(), and find() should all take logarithmic time or better.
+For example, if one of the connected components is {1,2,6,9}, then the find() method should return 9 for each of the four elements in the connected components.
+
+
+
+
+public class UnionFind {
+    private int[] parent;
+    private int[] size;
+    private int[] largest;
+
+    public UnionFind(int n) {
+        parent = new int[n];  // Initialize parent array to hold the parent/root of each element
+        size = new int[n];  // Initialize size array to keep track of the size of each component
+        largest = new int[n];  // Initialize largest array to store the largest element in each component
+
+        for (int i = 0; i < n; i++) {
+            parent[i] = i;  // Initially, each element is its own parent/root
+            size[i] = 1;  // Each component has an initial size of 1
+            largest[i] = i;  // Each element itself is the largest in its component initially
+        }
+    }
+
+    public void union(int p, int q) {
+        int rootP = find(p);  // Find the root of element p
+        int rootQ = find(q);  // Find the root of element q
+
+        if (rootP == rootQ) {
+            return;  // If the elements are already in the same component, no need to perform the union
+        }
+
+        if (size[rootP] < size[rootQ]) {  // Weighted union: Attach smaller component to larger component
+            parent[rootP] = rootQ;  // Update the parent of rootP to be rootQ
+            size[rootQ] += size[rootP];  // Update the size of rootQ component
+            if (largest[rootP] > largest[rootQ]) {
+                largest[rootQ] = largest[rootP];  // Update the largest element in rootQ component if necessary
+            }
+        } else {
+            parent[rootQ] = rootP;  // Update the parent of rootQ to be rootP
+            size[rootP] += size[rootQ];  // Update the size of rootP component
+            if (largest[rootQ] > largest[rootP]) {
+                largest[rootP] = largest[rootQ];  // Update the largest element in rootP component if necessary
+            }
+        }
+    }
+
+    public int find(int p) {
+        while (p != parent[p]) {  // Traverse the parent pointers until reaching the root of the component
+            parent[p] = parent[parent[p]];  // Path compression: Update parent pointer to point directly to the root
+            p = parent[p];
+        }
+        return largest[p];  // Return the largest element associated with the root of the component
+    }
+}
